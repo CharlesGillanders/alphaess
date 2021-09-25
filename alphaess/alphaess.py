@@ -149,8 +149,10 @@ class alphaess:
                         if  "sys_sn" in unit:
                             serial = unit["sys_sn"]
                             logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-                            statistics = await self.__daily_statistics(serial)
-                            unit['statistics'] = statistics
+                            dailystatistics = await self.__daily_statistics(serial)
+                            unit['statistics'] = dailystatistics
+                            systemstatistics = await self.__system_statistics(serial)
+                            unit['system_statistics'] = systemstatistics
                             alldata.append(unit)
                     return alldata
 
@@ -162,7 +164,7 @@ class alphaess:
 
         todaydate = date.today().strftime("%Y-%m-%d")
         resource = f"{BASEURL}/Power/SticsByPeriod"
-        logger.debug("Trying to retrieve statistics for serial %s, date %s",serial,todaydate)
+        logger.debug("Trying to retrieve daily statistics for serial %s, date %s",serial,todaydate)
 
         async with aiohttp.ClientSession() as session:
             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
@@ -176,6 +178,47 @@ class alphaess:
                         "SN": serial,
                         "userId": "",
                         "noLoading": True,
+                    }
+            )
+
+            try:
+                response.raise_for_status()
+            except:
+                pass
+
+            if response.status != 200:
+                return None
+
+            json_response = await response.json()
+            if "info" in json_response and json_response["info"] != "Success":
+                return None
+            else:
+                if json_response["data"] is not None:
+                    return json_response["data"]
+                else:
+                    logger.debug("didn't find data in response")
+                    return None
+
+    async def __system_statistics(self,serial):
+        """Get system statistics"""
+
+        if not await self.__connection_check():
+            return None
+
+        todaydate = date.today().strftime("%Y-%m-%d")
+        resource = f"{BASEURL}/Statistic/SystemStatistic"
+        logger.debug("Trying to retrieve system statistics for serial %s, date %s",serial,todaydate)
+
+        async with aiohttp.ClientSession() as session:
+            session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            response = await session.post(
+                    resource,
+                    json={
+                        "sn":serial,
+                        "userId":"",
+                        "statisticBy":"month",
+                        "sDate":datetime.today().replace(day=1).strftime("%Y-%m-%d"),
+                        "isOEM":0
                     }
             )
 

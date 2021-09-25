@@ -2,14 +2,14 @@ import logging
 import asyncio
 from os import stat
 import sys
-import json
+import datetime
 
 
 from alphaess.alphaess import alphaess
 
 
-username = sys.argv[1]
-password = sys.argv[2]
+username = input("username: ")
+password = input("password: ")
 
 
 
@@ -31,8 +31,14 @@ async def main():
     authenticated = await client.authenticate(username, password)
 
     if authenticated:
-        statistics = await client.getdata()
-        print(f"all statistics: {statistics}")
+        data = await client.getdata()
+        print(f"all data: {data}")
+        discharge = data[0]["system_statistics"]["EDischarge"]
+        charge = data[0]["system_statistics"]["ECharge"]
+        index = int(datetime.date.today().strftime("%d")) - 1
+        print(f"discharge: {discharge[index]}")
+        print(f"charge: {charge[index]}")
+
 
 
 asyncio.run(main())
