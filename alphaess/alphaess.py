@@ -153,6 +153,8 @@ class alphaess:
                             unit['statistics'] = dailystatistics
                             systemstatistics = await self.__system_statistics(serial)
                             unit['system_statistics'] = systemstatistics
+                            seconddata = await self.__second_data_by_sn(serial)
+                            unit['second_data'] = seconddata
                             alldata.append(unit)
                     return alldata
 
@@ -232,6 +234,42 @@ class alphaess:
 
             json_response = await response.json()
             if "info" in json_response and json_response["info"] != "Success":
+                return None
+            else:
+                if json_response["data"] is not None:
+                    return json_response["data"]
+                else:
+                    logger.debug("didn't find data in response")
+                    return None
+
+    async def __second_data_by_sn(self,serial):
+        """Get second data by serial number"""
+
+        if not await self.__connection_check():
+            return None
+
+        resource = f"{BASEURL}/ESS/GetSecondDataBySn?sys_sn={serial}&noLoading=true"
+        logger.debug("Trying to retrieve second data by serial %s",serial)
+
+        async with aiohttp.ClientSession() as session:
+            session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            response = await session.get(
+                    resource,
+                    json={}
+            )
+
+            try:
+                response.raise_for_status()
+            except:
+                pass
+
+            if response.status != 200:
+                logger.debug("status was ", response.status)
+                return None
+
+            json_response = await response.json()
+            if "info" in json_response and json_response["info"] != "Success":
+                logger.debug("didn't find Success in response")
                 return None
             else:
                 if json_response["data"] is not None:
