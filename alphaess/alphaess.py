@@ -88,34 +88,6 @@ class alphaess:
         await self.authenticate(self.username,self.password)
         return True
 
-
-    async def __ess_list(self) -> Optional(list):
-        """Retrieve ESS list by serial number from Alpha ESS"""
-
-        if not await self.__connection_check():
-            return None
-
-        resource = f"{BASEURL}/Account/GetCustomMenuESSlist"
-
-        async with aiohttp.ClientSession() as session:
-            session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
-            response = await session.get(resource)
-
-            try:
-                response.raise_for_status()
-            except:
-                pass
-            if response.status != 200:
-              return None
-
-            json_response = await response.json()
-
-            if "info" not in json_response or json_response["info"] != "Success":
-                return None
-            if json_response["data"] is not None:
-                return json_response["data"]
-            return None
-
     async def getdata(self)-> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
 
