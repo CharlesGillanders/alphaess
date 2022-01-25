@@ -117,12 +117,9 @@ class alphaess:
                     if  "sys_sn" in unit:
                         serial = unit["sys_sn"]
                         logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-                        dailystatistics = await self.__daily_statistics(serial)
-                        unit['statistics'] = dailystatistics
-                        systemstatistics = await self.__system_statistics(serial)
-                        unit['system_statistics'] = systemstatistics
-                        seconddata = await self.__second_data_by_sn(serial)
-                        unit['second_data'] = seconddata
+                        unit['statistics'] = await self.__daily_statistics(serial)
+                        unit['system_statistics'] = await self.__system_statistics(serial)
+                        unit['second_data'] = await self.__second_data_by_sn(serial)
                         alldata.append(unit)
                 return alldata
 
