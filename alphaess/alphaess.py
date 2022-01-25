@@ -94,10 +94,9 @@ class alphaess:
         if not await self.__connection_check():
             return None
 
-        resource = f"{BASEURL}/Account/GetCustomMenuESSlist"
-
         async with aiohttp.ClientSession() as session:
             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            resource = f"{BASEURL}/Account/GetCustomMenuESSlist"
             response = await session.get(resource)
 
             try:
@@ -130,11 +129,11 @@ class alphaess:
             return None
 
         todaydate = date.today().strftime("%Y-%m-%d")
-        resource = f"{BASEURL}/Power/SticsByPeriod"
         logger.debug("Trying to retrieve daily statistics for serial %s, date %s",serial,todaydate)
 
         async with aiohttp.ClientSession() as session:
             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            resource = f"{BASEURL}/Power/SticsByPeriod"
             response = await session.post(
                     resource,
                     json={
@@ -171,11 +170,11 @@ class alphaess:
             return None
 
         todaydate = date.today().strftime("%Y-%m-%d")
-        resource = f"{BASEURL}/Statistic/SystemStatistic"
         logger.debug("Trying to retrieve system statistics for serial %s, date %s",serial,todaydate)
 
         async with aiohttp.ClientSession() as session:
             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            resource = f"{BASEURL}/Statistic/SystemStatistic"
             response = await session.post(
                     resource,
                     json={
@@ -209,11 +208,11 @@ class alphaess:
         if not await self.__connection_check():
             return None
 
-        resource = f"{BASEURL}/ESS/GetSecondDataBySn?sys_sn={serial}&noLoading=true"
         logger.debug("Trying to retrieve second data by serial %s",serial)
 
         async with aiohttp.ClientSession() as session:
             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+            resource = f"{BASEURL}/ESS/GetSecondDataBySn?sys_sn={serial}&noLoading=true"
             response = await session.get(
                     resource,
                     json={}
