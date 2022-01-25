@@ -57,23 +57,22 @@ class alphaess:
                 return False
             json_response = await response.json()
 
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 return False
-            else:
-                if "AccessToken" in json_response["data"]:
-                    self.accesstoken = json_response["data"]["AccessToken"]
-                    if "ExpiresIn" in json_response["data"]:
-                        self.expiresin = json_response["data"]["ExpiresIn"]
-                    if "TokenCreateTime" in json_response["data"]:
-                         if "M" in json_response["data"]["TokenCreateTime"]:
-                             self.tokencreatetime = datetime.strptime(json_response["data"]["TokenCreateTime"],"%m/%d/%Y %I:%M:%S %p")
-                         else:
-                             self.tokencreatetime =  datetime.strptime(json_response["data"]["TokenCreateTime"],"%Y-%m-%d %H:%M:%S")
+            if "AccessToken" in json_response["data"]:
+                self.accesstoken = json_response["data"]["AccessToken"]
+                if "ExpiresIn" in json_response["data"]:
+                    self.expiresin = json_response["data"]["ExpiresIn"]
+                if "TokenCreateTime" in json_response["data"]:
+                     if "M" in json_response["data"]["TokenCreateTime"]:
+                         self.tokencreatetime = datetime.strptime(json_response["data"]["TokenCreateTime"],"%m/%d/%Y %I:%M:%S %p")
+                     else:
+                         self.tokencreatetime =  datetime.strptime(json_response["data"]["TokenCreateTime"],"%Y-%m-%d %H:%M:%S")
 
-                    self.username = username
-                    self.password = password
-                    logger.info("Successfully Authenticated to Alpha ESS")
-                    logger.debug("Received access token: %s",self.accesstoken)
+                self.username = username
+                self.password = password
+                logger.info("Successfully Authenticated to Alpha ESS")
+                logger.debug("Received access token: %s",self.accesstoken)
 
         return True
 
@@ -111,13 +110,11 @@ class alphaess:
 
             json_response = await response.json()
 
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            else:
-                if json_response["data"] is not None:
-                    return json_response["data"]
-                else:
-                    return None
+            if json_response["data"] is not None:
+                return json_response["data"]
+            return None
 
     async def getdata(self)-> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
@@ -140,23 +137,22 @@ class alphaess:
 
             json_response = await response.json()
 
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            else:
-                if json_response["data"] is not None:
-                    alldata=[]
-                    for unit in json_response["data"]:
-                        if  "sys_sn" in unit:
-                            serial = unit["sys_sn"]
-                            logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-                            dailystatistics = await self.__daily_statistics(serial)
-                            unit['statistics'] = dailystatistics
-                            systemstatistics = await self.__system_statistics(serial)
-                            unit['system_statistics'] = systemstatistics
-                            seconddata = await self.__second_data_by_sn(serial)
-                            unit['second_data'] = seconddata
-                            alldata.append(unit)
-                    return alldata
+            if json_response["data"] is not None:
+                alldata=[]
+                for unit in json_response["data"]:
+                    if  "sys_sn" in unit:
+                        serial = unit["sys_sn"]
+                        logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
+                        dailystatistics = await self.__daily_statistics(serial)
+                        unit['statistics'] = dailystatistics
+                        systemstatistics = await self.__system_statistics(serial)
+                        unit['system_statistics'] = systemstatistics
+                        seconddata = await self.__second_data_by_sn(serial)
+                        unit['second_data'] = seconddata
+                        alldata.append(unit)
+                return alldata
 
     async def __daily_statistics(self,serial):
         """Get daily energy statistics"""
@@ -192,14 +188,12 @@ class alphaess:
                 return None
 
             json_response = await response.json()
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            else:
-                if json_response["data"] is not None:
-                    return json_response["data"]
-                else:
-                    logger.debug("didn't find data in response")
-                    return None
+            if json_response["data"] is None:
+                logger.debug("didn't find data in response")
+                return None
+            return json_response["data"]
 
     async def __system_statistics(self,serial):
         """Get system statistics"""
@@ -233,14 +227,12 @@ class alphaess:
                 return None
 
             json_response = await response.json()
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            else:
-                if json_response["data"] is not None:
-                    return json_response["data"]
-                else:
-                    logger.debug("didn't find data in response")
-                    return None
+            if json_response["data"] is not None:
+                return json_response["data"]
+            logger.debug("didn't find data in response")
+            return None
 
     async def __second_data_by_sn(self,serial):
         """Get second data by serial number"""
@@ -268,12 +260,10 @@ class alphaess:
                 return None
 
             json_response = await response.json()
-            if "info" in json_response and json_response["info"] != "Success":
+            if "info" not in json_response or json_response["info"] != "Success":
                 logger.debug("didn't find Success in response")
                 return None
-            else:
-                if json_response["data"] is not None:
-                    return json_response["data"]
-                else:
-                    logger.debug("didn't find data in response")
-                    return None
+            if json_response["data"] is None:
+                logger.debug("didn't find data in response")
+                return None
+            return json_response["data"]
