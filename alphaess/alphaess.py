@@ -76,20 +76,21 @@ class alphaess:
 
         return True
 
-    async def __connection_check(self) -> bool:
-        """Check if API needs re-authentication."""
-
-        if self.accesstoken is not None:
-            if (self.expiresin is not None) and (self.tokencreatetime is not None):
-                    timediff = datetime.utcnow() - self.tokencreatetime
-                    if timediff.total_seconds() < self.expiresin:
-                        logger.debug("API authentication token remains valid")
-                        return True
-        await self.authenticate(self.username,self.password)
-        return True
-
     async def getdata(self)-> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
+
+        alldata=[]
+        for unit in await self.get_units():
+            if  "sys_sn" in unit:
+                serial = unit["sys_sn"]
+                logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
+                unit['statistics'] = await self.__daily_statistics(serial)
+                unit['system_statistics'] = await self.__system_statistics(serial)
+                alldata.append(unit)
+        return alldata
+
+    async def get_units(self):
+        """Get all AlphaEss units for this customer credential"""
 
         if not await self.__connection_check():
             return None
@@ -110,17 +111,21 @@ class alphaess:
 
             if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            if json_response["data"] is not None:
-                alldata=[]
-                for unit in json_response["data"]:
-                    if  "sys_sn" in unit:
-                        serial = unit["sys_sn"]
-                        logger.info(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-                        unit['statistics'] = await self.__daily_statistics(serial)
-                        unit['system_statistics'] = await self.__system_statistics(serial)
-                        unit['second_data'] = await self.__second_data_by_sn(serial)
-                        alldata.append(unit)
-                return alldata
+            if json_response["data"] is None:
+                return None
+            return json_response["data"]
+
+    async def __connection_check(self) -> bool:
+        """Check if API needs re-authentication."""
+
+        if self.accesstoken is not None:
+            if (self.expiresin is not None) and (self.tokencreatetime is not None):
+                    timediff = datetime.utcnow() - self.tokencreatetime
+                    if timediff.total_seconds() < self.expiresin:
+                        logger.debug("API authentication token remains valid")
+                        return True
+        await self.authenticate(self.username,self.password)
+        return True
 
     async def __daily_statistics(self,serial):
         """Get daily energy statistics"""
@@ -197,13 +202,13 @@ class alphaess:
             json_response = await response.json()
             if "info" not in json_response or json_response["info"] != "Success":
                 return None
-            if json_response["data"] is not None:
-                return json_response["data"]
-            logger.debug("didn't find data in response")
-            return None
+            if json_response["data"] is None:
+                logger.debug("didn't find data in response")
+                return None
+            return json_response["data"]
 
-    async def __second_data_by_sn(self,serial):
-        """Get second data by serial number"""
+    async def second_data_by_sn(self,serial):
+        """Get near live data for unit with supplied serial number"""
 
         if not await self.__connection_check():
             return None
