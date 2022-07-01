@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 from voluptuous import Optional
 
-BASEURL="https://www.alphaess.com/api"
+BASEURL="https://cloud.alphaess.com/api"
 
 HEADER = {
     "Content-Type": "application/json",
