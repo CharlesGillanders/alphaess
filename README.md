@@ -1,5 +1,5 @@
 ## alphaess
-This Python library logs in to www.alphaess.com and retrieves data on your Alpha ESS inverter, photovoltaic panels, and battery if you have one.
+This Python library logs in to cloud.alphaess.com and retrieves data on your Alpha ESS inverter, photovoltaic panels, and battery if you have one.
 
 ## Usage
 
