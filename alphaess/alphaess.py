@@ -149,7 +149,7 @@ class alphaess:
             logger.error(e)
             raise
 
-    async def data_request(self, path, json):
+    async def data_request(self, path, json) -> Optional(dict):
         """Request data from Alpha ESS"""
         if not await self.__connection_check():
             return None
@@ -218,9 +218,11 @@ class alphaess:
 
         todaydate = date.today().strftime("%Y-%m-%d")
         json = {
-            "sn": serial,
-            "userId": ""
+            "SN": serial,
+            "noLoading": True,
+            "userId": "",
+            "isOEM": 0,
+            "sys_sn": serial
         }
-
         logger.debug("Trying to retrieve power data for serial %s, date %s", serial, todaydate)
-        return await self.data_request(path="ESS/GetSecondDataBySN", json=json)
+        return await self.data_request(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}", json=json)
