@@ -50,7 +50,6 @@ class alphaess:
                 )
                 if response.status == 200:
                     json_response = await response.json()
-
                     if "info" in json_response and json_response["info"] != "Success":
                         if "incorrect user name or password" in json_response["info"].casefold():
                             raise aiohttp.ClientResponseError(response.request_info, response.history, status=401,
@@ -58,18 +57,19 @@ class alphaess:
                         else:
                             raise aiohttp.ClientResponseError(response.request_info, response.history,
                                                               status=response.status, message=json_response["info"])
-
                     if "AccessToken" in json_response["data"]:
                         self.accesstoken = json_response["data"]["AccessToken"]
                     if "ExpiresIn" in json_response["data"]:
                         self.expiresin = json_response["data"]["ExpiresIn"]
                     if "TokenCreateTime" in json_response["data"]:
+                        TokenCreateTime = json_response["data"]["TokenCreateTime"]
                         if "M" in json_response["data"]["TokenCreateTime"]:
-                            self.tokencreatetime = datetime.strptime(json_response["data"]["TokenCreateTime"],
-                                                                     "%m/%d/%Y %I:%M:%S %p")
+                            self.tokencreatetime = datetime.strptime(TokenCreateTime,"%m/%d/%Y %I:%M:%S %p")
                         else:
-                            self.tokencreatetime = datetime.strptime(json_response["data"]["TokenCreateTime"],
-                                                                     "%Y-%m-%d %H:%M:%S")
+                            if len(TokenCreateTime.split("/")) == 3:
+                              self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y/%m/%d %H:%M:%S")
+                            if len(TokenCreateTime.split("-")) == 3:
+                                self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y-%m-%d %H:%M:%S")
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
