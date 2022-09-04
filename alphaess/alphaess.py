@@ -64,12 +64,12 @@ class alphaess:
                     if "TokenCreateTime" in json_response["data"]:
                         TokenCreateTime = json_response["data"]["TokenCreateTime"]
                         if "M" in json_response["data"]["TokenCreateTime"]:
-                            self.tokencreatetime = datetime.strptime(TokenCreateTime,"%m/%d/%Y %I:%M:%S %p")
+                            self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
                         else:
                             if len(TokenCreateTime.split("/")) == 3:
-                              self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y/%m/%d %H:%M:%S")
+                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y/%m/%d %H:%M:%S")
                             if len(TokenCreateTime.split("-")) == 3:
-                                self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y-%m-%d %H:%M:%S")
+                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y-%m-%d %H:%M:%S")
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
@@ -226,3 +226,65 @@ class alphaess:
         }
         logger.debug("Trying to retrieve power data for serial %s, date %s", serial, todaydate)
         return await self.data_request(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}", json=json)
+
+    async def __ess_settings(self) -> Optional(dict):
+        """Retrieve ESS settings from Alpha ESS"""
+
+        if not await self.__connection_check():
+            return None
+
+        resource = f"{BASEURL}/Account/GetCustomUseESSSetting"
+
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
+            try:
+                session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+                response = await session.get(resource)
+
+                if response.status == 200:
+                    json_response = await response.json()
+
+                if "info" in json_response and json_response["info"] != "Success":
+                    raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status,
+                                                      message=json_response["info"])
+
+                if json_response["data"] is not None:
+                    return json_response["data"]
+                else:
+                    return None
+            except Exception as e:
+                logger.error(e)
+                raise
+
+    async def setbatterycharge(self, enabled, cp1start, cp1end, cp2start, cp2end, chargestopsoc):
+        """Set battery grid charging"""
+
+        if not await self.__connection_check():
+            return None
+
+        logger.debug("Trying to retrieve system settings")
+        settings = await self.__ess_settings()
+        settings["grid_charge"] = int(enabled)
+        settings["time_chaf1a"] = cp1start
+        settings["time_chae1a"] = cp1end
+        settings["time_chaf2a"] = cp2start
+        settings["time_chae2a"] = cp2end
+        settings["bat_high_cap"] = int(chargestopsoc)
+
+        await self.data_request(path="Account/CustomUseESSSetting", json=settings)
+
+    async def setbatterydischarge(self, enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc):
+        """Set battery discharging"""
+
+        if not await self.__connection_check():
+            return None
+
+        logger.debug("Trying to retrieve system settings")
+        settings = await self.__ess_settings()
+        settings["ctr_dis"] = int(enabled)
+        settings["time_disf1a"] = dp1start
+        settings["time_dise1a"] = dp1end
+        settings["time_disf2a"] = dp2start
+        settings["time_dise2a"] = dp2end
+        settings["bat_use_cap"] = int(dischargecutoffsoc)
+
+        await self.data_request(path="Account/CustomUseESSSetting", json=settings)

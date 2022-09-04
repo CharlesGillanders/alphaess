@@ -46,6 +46,9 @@ async def main():
                 charge = data[0]["system_statistics"]["ECharge"]        
                 print(f"charge: {charge[index]}")
 
+            await client.setbatterycharge(False, "00:00", "00:00", "00:00", "00:00", 100)
+            await client.setbatterydischarge(False, "00:00", "00:00", "00:00", "00:00", 1)
+
     except aiohttp.ClientResponseError as e:
         if e.status == 401:
             logger.error("Authentication Error")

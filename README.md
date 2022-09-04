@@ -11,9 +11,12 @@ Currently this package uses an API that I reverse engineered the API from the Al
 
 # Methods
 
-There are two public methods in this module
+There are four public methods in this module
 
-authenticate(username, password) - attempts to authenticate to the ALpha ESS API with a username and password combination, returns True or False depending on sucessful authentication or not
+authenticate(username, password) - attempts to authenticate to the ALpha ESS API with a username and password combination, returns True or False depending on successful authentication or not
 
-getdata() - having succesfully authenticated attempts to get statistical energy data on all registered Alpha ESS systems - will return None if there are issues retrieving data from the Alpha ESS API.
+getdata() - having successfully authenticated attempts to get statistical energy data on all registered Alpha ESS systems - will return None if there are issues retrieving data from the Alpha ESS API.
 
+setbatterycharge(enabled, cp1start, cp1end, cp2start, cp2end, chargestopsoc) - having successfully authenticated set battery grid charging settings.
+
+setbatterydischarge(enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc) - having successfully authenticated set battery discharge settings.
