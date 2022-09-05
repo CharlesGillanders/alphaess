@@ -142,9 +142,32 @@ class alphaess:
                     unit['statistics'] = await self.__daily_statistics(serial)
                     unit['system_statistics'] = await self.__system_statistics(serial)
                     unit['powerdata'] = await self.__powerdata(serial)
+                    unit['settings'] = await self.__settings(serial)
                     alldata.append(unit)
             return alldata
 
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def __settings(self,serial) -> Optional(list):
+        """Retrieve ESS custom settings by serial number from Alpha ESS"""
+
+        if not await self.__connection_check():
+            return None
+
+        try:
+
+            alldata = []
+            units= await self.__GetCustomUseESSSetting()
+            logger.debug(alldata)
+            
+            for unit in units:
+                if "sys_sn" in unit:
+                    if unit["sys_sn"] == serial:
+                        unit.pop("sys_sn")
+                        return unit
+        
         except Exception as e:
             logger.error(e)
             raise
@@ -226,3 +249,36 @@ class alphaess:
         }
         logger.debug("Trying to retrieve power data for serial %s, date %s", serial, todaydate)
         return await self.data_request(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}", json=json)
+
+    async def __GetCustomUseESSSetting(self):
+        """Get System Setup"""
+
+        logger.debug("Trying to retrieve System Setup data")
+
+        
+        resource = f"{BASEURL}/Account/GetCustomUseESSSetting"
+
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
+            try:
+                session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+                response = await session.get(resource)
+
+                if response.status == 200:
+                    json_response = await response.json()
+
+                if "info" in json_response and json_response["info"] != "Success":
+                    raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status,
+                                                      message=json_response["info"])
+                list=[]
+                if json_response["data"] is not None:
+                    if isinstance(json_response["data"], type(list)):
+                        return json_response["data"]
+                    else:
+                        list.append(json_response["data"])
+                        return list
+                else:
+                    return None
+
+            except Exception as e:
+                logger.error(e)
+                raise
