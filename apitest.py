@@ -10,7 +10,6 @@ from alphaess.alphaess import alphaess
 
 username = input("username: ")
 password = input("password: ")
-serial = input("serial: ")
 
 logger = logging.getLogger('')
 logger.setLevel(logging.DEBUG)
@@ -33,6 +32,10 @@ async def main():
         if authenticated:
             data = await client.getdata()
             print(f"all data: {data}")
+            if data:
+                if "sys_sn" in data[0]:
+                    serial = data[0]['sys_sn']
+            print(f"serial: {serial}")
 
             index = int(datetime.date.today().strftime("%d")) - 1
             if "EDischarge" in data:
