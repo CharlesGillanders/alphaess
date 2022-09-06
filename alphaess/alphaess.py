@@ -1,9 +1,6 @@
-from datetime import datetime, timedelta, date
-import re
+from datetime import datetime, date
 import aiohttp
-from async_timeout import timeout
 import logging
-import json
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +61,12 @@ class alphaess:
                     if "TokenCreateTime" in json_response["data"]:
                         TokenCreateTime = json_response["data"]["TokenCreateTime"]
                         if "M" in json_response["data"]["TokenCreateTime"]:
-                            self.tokencreatetime = datetime.strptime(TokenCreateTime,"%m/%d/%Y %I:%M:%S %p")
+                            self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
                         else:
                             if len(TokenCreateTime.split("/")) == 3:
-                              self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y/%m/%d %H:%M:%S")
+                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y/%m/%d %H:%M:%S")
                             if len(TokenCreateTime.split("-")) == 3:
-                                self.tokencreatetime = datetime.strptime(TokenCreateTime,"%Y-%m-%d %H:%M:%S")
+                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y-%m-%d %H:%M:%S")
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
@@ -95,13 +92,37 @@ class alphaess:
         await self.authenticate(self.username, self.password)
         return True
 
-    async def __ess_list(self) -> Optional(list):
+    async def getdata(self) -> Optional(list):
+        """Retrieve ESS list by serial number from Alpha ESS"""
+
+        try:
+            alldata = []
+            units = await self.__get_data("Account/GetCustomMenuESSList")
+            logger.debug(alldata)
+
+            for unit in units:
+                if "sys_sn" in unit:
+                    serial = unit["sys_sn"]
+                    logger.debug(f"Retreiving energy statistics for Alpha ESS unit {serial}")
+                    unit['statistics'] = await self.__daily_statistics(serial)
+                    unit['system_statistics'] = await self.__system_statistics(serial)
+                    unit['powerdata'] = await self.__powerdata(serial)
+                    system = await self.__system_id_for_sn(serial)
+                    unit['settings'] = await self.__settings(system)
+                    alldata.append(unit)
+            return alldata
+
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def __get_data(self, path) -> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
 
         if not await self.__connection_check():
             return None
 
-        resource = f"{BASEURL}/Account/GetCustomMenuESSlist"
+        resource = f"{BASEURL}/{path}"
 
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
@@ -123,56 +144,7 @@ class alphaess:
                 logger.error(e)
                 raise
 
-    async def getdata(self) -> Optional(list):
-        """Retrieve ESS list by serial number from Alpha ESS"""
-
-        if not await self.__connection_check():
-            return None
-
-        try:
-
-            alldata = []
-            units = await self.__ess_list()
-            logger.debug(alldata)
-
-            for unit in units:
-                if "sys_sn" in unit:
-                    serial = unit["sys_sn"]
-                    logger.debug(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-                    unit['statistics'] = await self.__daily_statistics(serial)
-                    unit['system_statistics'] = await self.__system_statistics(serial)
-                    unit['powerdata'] = await self.__powerdata(serial)
-                    unit['settings'] = await self.__settings(serial)
-                    alldata.append(unit)
-            return alldata
-
-        except Exception as e:
-            logger.error(e)
-            raise
-
-    async def __settings(self,serial) -> Optional(list):
-        """Retrieve ESS custom settings by serial number from Alpha ESS"""
-
-        if not await self.__connection_check():
-            return None
-
-        try:
-
-            alldata = []
-            units= await self.__GetCustomUseESSSetting()
-            logger.debug(alldata)
-            
-            for unit in units:
-                if "sys_sn" in unit:
-                    if unit["sys_sn"] == serial:
-                        unit.pop("sys_sn")
-                        return unit
-        
-        except Exception as e:
-            logger.error(e)
-            raise
-
-    async def data_request(self, path, json) -> Optional(dict):
+    async def __post_data(self, path, json) -> Optional(dict):
         """Request data from Alpha ESS"""
         if not await self.__connection_check():
             return None
@@ -219,7 +191,7 @@ class alphaess:
         }
 
         logger.debug("Trying to retrieve daily statistics for serial %s, date %s", serial, todaydate)
-        return await self.data_request(path="Power/SticsByPeriod", json=json)
+        return await self.__post_data(path="Power/SticsByPeriod", json=json)
 
     async def __system_statistics(self, serial):
         """Get system statistics"""
@@ -234,7 +206,7 @@ class alphaess:
         }
 
         logger.debug("Trying to retrieve system statistics for serial %s, date %s", serial, todaydate)
-        return await self.data_request(path="Statistic/SystemStatistic", json=json)
+        return await self.__post_data(path="Statistic/SystemStatistic", json=json)
 
     async def __powerdata(self, serial):
         """Get power data"""
@@ -248,37 +220,59 @@ class alphaess:
             "sys_sn": serial
         }
         logger.debug("Trying to retrieve power data for serial %s, date %s", serial, todaydate)
-        return await self.data_request(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}", json=json)
+        return await self.__post_data(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}", json=json)
 
-    async def __GetCustomUseESSSetting(self):
-        """Get System Setup"""
+    async def __settings(self, systemid):
+        """Retrieve ESS custom settings by serial number from Alpha ESS"""
 
-        logger.debug("Trying to retrieve System Setup data")
+        logger.debug("Trying to retrieve settings for system %s,", systemid)
+        return await self.__get_data(path=f"Account/GetCustomUseESSSetting?system_id={systemid}")
 
-        
-        resource = f"{BASEURL}/Account/GetCustomUseESSSetting"
+    async def __system_id_for_sn(self, serial):
+        """Retrieve ESS system_id for the sys_sn from Alpha ESS"""
 
-        async with aiohttp.ClientSession(raise_for_status=True) as session:
-            try:
-                session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
-                response = await session.get(resource)
+        try:
+            logger.debug(f"Getting System Id for Alpha ESS unit {serial}")
+            systems = await self.__get_data(path="Account/GetCustomUseESSList")
 
-                if response.status == 200:
-                    json_response = await response.json()
+            system = list(filter(lambda x: x["sys_sn"] == serial, systems))
 
-                if "info" in json_response and json_response["info"] != "Success":
-                    raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status,
-                                                      message=json_response["info"])
-                list=[]
-                if json_response["data"] is not None:
-                    if isinstance(json_response["data"], type(list)):
-                        return json_response["data"]
-                    else:
-                        list.append(json_response["data"])
-                        return list
-                else:
-                    return None
+            if system:
+                if "system_id" in system[0]:
+                    return system[0]["system_id"]
 
-            except Exception as e:
-                logger.error(e)
-                raise
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def setbatterycharge(self, serial, enabled, cp1start, cp1end, cp2start, cp2end, chargestopsoc):
+        """Set battery grid charging"""
+
+        system = await self.__system_id_for_sn(serial)
+
+        settings = await self.__settings(system)
+        settings["grid_charge"] = int(enabled)
+        settings["time_chaf1a"] = cp1start
+        settings["time_chae1a"] = cp1end
+        settings["time_chaf2a"] = cp2start
+        settings["time_chae2a"] = cp2end
+        settings["bat_high_cap"] = int(chargestopsoc)
+
+        logger.debug(f"Trying to set system settings for system {system}")
+        await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
+
+    async def setbatterydischarge(self, serial, enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc):
+        """Set battery discharging"""
+
+        system = await self.__system_id_for_sn(serial)
+
+        logger.debug("Trying to retrieve system settings")
+        settings = await self.__settings(system)
+        settings["ctr_dis"] = int(enabled)
+        settings["time_disf1a"] = dp1start
+        settings["time_dise1a"] = dp1end
+        settings["time_disf2a"] = dp2start
+        settings["time_dise2a"] = dp2end
+        settings["bat_use_cap"] = int(dischargecutoffsoc)
+
+        await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
