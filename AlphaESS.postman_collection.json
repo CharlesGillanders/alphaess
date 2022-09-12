@@ -1,0 +1,547 @@
+{
+	"info": {
+		"_postman_id": "3c1cacb5-d8f8-489a-909c-2872780bfa59",
+		"name": "AlphaESS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23152579"
+	},
+	"item": [
+		{
+			"name": "Account",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"BearerToken\", jsonData.data.AccessToken);",
+									"",
+									"// Set current date for statistics",
+									"var moment = require('moment');",
+									"pm.globals.set('CurrentDate', moment().format((\"YYYY-MM-DD\")));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{Username}}\",\r\n    \"password\": \"{{Password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Account/Login",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"Login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetUserInfo",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetUserInfo",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetUserInfo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCustomMenuESSList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"SysSn\", jsonData.data[0].sys_sn);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetCustomMenuESSList",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetCustomMenuESSList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCustomUseESSList",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"var system = _.find(jsonData.data, {\"sys_sn\": pm.variables.get(\"SysSn\")})",
+									"pm.globals.set(\"SystemId\", system.system_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetCustomUseESSList",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetCustomUseESSList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCustomUseESSSetting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"Settings\", JSON.stringify(jsonData.data));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetCustomUseESSSetting?system_id={{SystemId}}",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetCustomUseESSSetting"
+							],
+							"query": [
+								{
+									"key": "system_id",
+									"value": "{{SystemId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CustomUseESSSetting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{{Settings}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Account/CustomUseESSSetting",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"CustomUseESSSetting"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ESS",
+			"item": [
+				{
+					"name": "SticsSummeryDataForCustomer",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"showLoading\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/ESS/SticsSummeryDataForCustomer",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"ESS",
+								"SticsSummeryDataForCustomer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetLastPowerDataBySN",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sys_sn\": \"{{SysSn}}\",\r\n    \"noLoading\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/ESS/GetLastPowerDataBySN",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"ESS",
+								"GetLastPowerDataBySN"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Power",
+			"item": [
+				{
+					"name": "SticsByPeriod",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"beginDay\": \"{{CurrentDate}}\",\r\n    \"endDay\": \"{{CurrentDate}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"isOEM\": 0,\r\n    \"SN\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"noLoading\": true\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Power/SticsByPeriod",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Power",
+								"SticsByPeriod"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SticsByDay",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"szDay\": \"{{CurrentDate}}\",\r\n    \"isOEM\": 0,\r\n    \"sDate\": \"{{CurrentDate}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Power/SticsByDay",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Power",
+								"SticsByDay"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PredictivePower",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"sTime\": \"12:00\",\r\n    \"lat\": \"\",\r\n    \"lon\": \"\",\r\n    \"panelNum\": 1,\r\n    \"pv\": 0.131,\r\n    \"isToday\": true,\r\n    \"sn\": \"{{SysSn}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Power/PredictivePower",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Power",
+								"PredictivePower"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Income",
+			"item": [
+				{
+					"name": "PayoffTotalResult",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"totalIncome\": \"\",\r\n    \"inputCost\": \"\",\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"isOEM\": 0,\r\n    \"statisticBy\": \"month\",\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"tDate\": \"{{CurrentDate}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Income/PayoffTotalResult",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Income",
+								"PayoffTotalResult"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PayoffStatistic",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"totalIncome\": \"\",\r\n    \"inputCost\": \"\",\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"isOEM\": 0,\r\n    \"statisticBy\": \"month\",\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"tDate\": \"{{CurrentDate}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Income/PayoffStatistic",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Income",
+								"PayoffStatistic"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
