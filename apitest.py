@@ -1,9 +1,6 @@
-from distutils.log import debug
 import logging
 import asyncio
-from urllib import response
 import aiohttp
-from os import stat
 import sys
 import datetime
 
@@ -13,8 +10,6 @@ from alphaess.alphaess import alphaess
 
 username = input("username: ")
 password = input("password: ")
-
-
 
 logger = logging.getLogger('')
 logger.setLevel(logging.DEBUG)
@@ -37,6 +32,10 @@ async def main():
         if authenticated:
             data = await client.getdata()
             print(f"all data: {data}")
+            if data:
+                if "sys_sn" in data[0]:
+                    serial = data[0]['sys_sn']
+            print(f"serial: {serial}")
 
             index = int(datetime.date.today().strftime("%d")) - 1
             if "EDischarge" in data:
@@ -46,6 +45,9 @@ async def main():
                 charge = data[0]["system_statistics"]["ECharge"]        
                 print(f"charge: {charge[index]}")
 
+            await client.setbatterycharge(serial, False, "00:00", "00:00", "00:00", "00:00", 100)
+            await client.setbatterydischarge(serial, False, "00:00", "00:00", "00:00", "00:00", 1)
+
     except aiohttp.ClientResponseError as e:
         if e.status == 401:
             logger.error("Authentication Error")
@@ -53,7 +55,5 @@ async def main():
             logger.error(e)
     except Exception as e:
         logger.error(e)
-
-
 
 asyncio.run(main())
