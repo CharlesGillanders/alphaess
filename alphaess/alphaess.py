@@ -266,7 +266,6 @@ class alphaess:
 
         system = await self.__system_id_for_sn(serial)
 
-        logger.debug("Trying to retrieve system settings")
         settings = await self.__settings(system)
         settings["ctr_dis"] = int(enabled)
         settings["time_disf1a"] = dp1start
@@ -275,4 +274,5 @@ class alphaess:
         settings["time_dise2a"] = dp2end
         settings["bat_use_cap"] = int(dischargecutoffsoc)
 
+        logger.debug(f"Trying to set system settings for system {system}")
         await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
