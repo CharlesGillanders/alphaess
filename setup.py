@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="alphaess",
-    version="0.0.8",
+    version="0.0.9",
     author="Charles Gillanders",
     author_email="charles@charlesgillanders.com",
     description="A python library to retrieve energy statistics from your Alpha ESS inverter by polling the Alpha ESS web API.",
