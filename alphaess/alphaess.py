@@ -72,8 +72,8 @@ class alphaess:
     async def __connection_check(self) -> bool:
         """Check if API needs re-authentication."""
 
-        if self.accesstoken is not None:
-            return True
+        # if self.accesstoken is not None:
+        #     return True
         await self.authenticate(self.username, self.password)
         return True
 
