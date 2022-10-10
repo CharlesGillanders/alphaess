@@ -1,6 +1,7 @@
 from datetime import datetime, date
 import aiohttp
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,6 @@ class alphaess:
 
         resource = f"{BASEURL}/Account/Login"
 
-        logger.debug("Trying authentication with username: %s  password: %s", username, password)
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
                 response = await session.post(
@@ -56,6 +56,19 @@ class alphaess:
                                                               status=response.status, message=json_response["info"])
                     if "AccessToken" in json_response["data"]:
                         self.accesstoken = json_response["data"]["AccessToken"]
+                    if "ExpiresIn" in json_response["data"]:
+                        self.expiresin = json_response["data"]["ExpiresIn"]
+                    if "TokenCreateTime" in json_response["data"]:
+                        TokenCreateTime = json_response["data"]["TokenCreateTime"]
+                        if "M" in json_response["data"]["TokenCreateTime"]:
+                            self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
+                        else:
+                            #AlphaESS frequently make unexpected changes to the date formatting in their API responses.
+                            #Attempting to workaround those changes by using a regular expression to pull out all 
+                            #digits from the TokenCreateTimec regardless of separator  characters.
+                            #Assumes date order returned from AlphaESS API will always be year, month, day, hour, minute, second
+                            DateParts = re.findall(r'\d+', TokenCreateTime)
+                            self.tokencreatetime = datetime.strptime(' '.join(DateParts),"%Y %m %d %H %M %S")
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
@@ -72,8 +85,13 @@ class alphaess:
     async def __connection_check(self) -> bool:
         """Check if API needs re-authentication."""
 
-        # if self.accesstoken is not None:
-        #     return True
+        if self.accesstoken is not None:
+            if (self.expiresin is not None) and (self.tokencreatetime is not None):
+                timediff = datetime.utcnow() - self.tokencreatetime
+                if timediff.total_seconds() < self.expiresin:
+                    logger.debug("API authentication token remains valid")
+                    return True
+            return True
         await self.authenticate(self.username, self.password)
         return True
 
