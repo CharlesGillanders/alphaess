@@ -65,7 +65,7 @@ class alphaess:
                         else:
                             #AlphaESS frequently make unexpected changes to the date formatting in their API responses.
                             #Attempting to workaround those changes by using a regular expression to pull out all 
-                            #digits from the TokenCreateTimec regardless of separator  characters.
+                            #digits from the TokenCreateTime regardless of separator characters.
                             #Assumes date order returned from AlphaESS API will always be year, month, day, hour, minute, second
                             DateParts = re.findall(r'\d+', TokenCreateTime)
                             self.tokencreatetime = datetime.strptime(' '.join(DateParts),"%Y %m %d %H %M %S")
