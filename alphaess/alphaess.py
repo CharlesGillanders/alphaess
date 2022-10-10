@@ -56,17 +56,6 @@ class alphaess:
                                                               status=response.status, message=json_response["info"])
                     if "AccessToken" in json_response["data"]:
                         self.accesstoken = json_response["data"]["AccessToken"]
-                    if "ExpiresIn" in json_response["data"]:
-                        self.expiresin = json_response["data"]["ExpiresIn"]
-                    if "TokenCreateTime" in json_response["data"]:
-                        TokenCreateTime = json_response["data"]["TokenCreateTime"]
-                        if "M" in json_response["data"]["TokenCreateTime"]:
-                            self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
-                        else:
-                            if len(TokenCreateTime.split("/")) == 3:
-                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y/%m/%d %H:%M:%S")
-                            if len(TokenCreateTime.split("-")) == 3:
-                                self.tokencreatetime = datetime.strptime(TokenCreateTime, "%Y-%m-%d %H:%M:%S")
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
@@ -84,11 +73,7 @@ class alphaess:
         """Check if API needs re-authentication."""
 
         if self.accesstoken is not None:
-            if (self.expiresin is not None) and (self.tokencreatetime is not None):
-                timediff = datetime.utcnow() - self.tokencreatetime
-                if timediff.total_seconds() < self.expiresin:
-                    logger.debug("API authentication token remains valid")
-                    return True
+            return True
         await self.authenticate(self.username, self.password)
         return True
 
