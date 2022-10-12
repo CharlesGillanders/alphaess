@@ -7,9 +7,12 @@ import datetime
 
 from alphaess.alphaess import alphaess
 
-
-username = input("username: ")
-password = input("password: ")
+if len(sys.argv) != 3:
+    username = input("username: ")
+    password = input("password: ")
+else:
+    username = sys.argv[1]
+    password = sys.argv[2]
 
 logger = logging.getLogger('')
 logger.setLevel(logging.DEBUG)
@@ -46,7 +49,7 @@ async def main():
                 print(f"charge: {charge[index]}")
 
             await client.setbatterycharge(serial, False, "00:00", "00:00", "00:00", "00:00", 100)
-            await client.setbatterydischarge(serial, False, "00:00", "00:00", "00:00", "00:00", 1)
+            await client.setbatterydischarge(serial, True, "08:00", "23:00", "00:00", "00:00", 15)
 
     except aiohttp.ClientResponseError as e:
         if e.status == 401:

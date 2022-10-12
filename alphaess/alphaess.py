@@ -1,4 +1,5 @@
 from datetime import datetime, date
+from sqlite3 import Date
 import aiohttp
 import logging
 import re
@@ -60,6 +61,7 @@ class alphaess:
                         self.expiresin = json_response["data"]["ExpiresIn"]
                     if "TokenCreateTime" in json_response["data"]:
                         TokenCreateTime = json_response["data"]["TokenCreateTime"]
+                        logger.debug("Received TokenCreateTime: %s", TokenCreateTime)
                         if "M" in json_response["data"]["TokenCreateTime"]:
                             self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
                         else:
@@ -68,6 +70,10 @@ class alphaess:
                             #digits from the TokenCreateTime regardless of separator characters.
                             #Assumes date order returned from AlphaESS API will always be year, month, day, hour, minute, second
                             DateParts = re.findall(r'\d+', TokenCreateTime)
+                            #Try to adjust for AM or PM if needed
+                            if int(DateParts[3]) < 12:
+                                if "下午" in TokenCreateTime or "PM" in TokenCreateTime or "pm" in TokenCreateTime:
+                                    DateParts[3] = str(int(DateParts[3]) + 12)
                             self.tokencreatetime = datetime.strptime(' '.join(DateParts),"%Y %m %d %H %M %S")
                     self.username = username
                     self.password = password
