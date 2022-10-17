@@ -1,23 +1,17 @@
-from datetime import datetime, date
-from sqlite3 import Date
+from datetime import datetime, date, timedelta
+import time
 import aiohttp
 import logging
-import re
+import hashlib
 
 logger = logging.getLogger(__name__)
 
 from voluptuous import Optional
 
 BASEURL = "https://cloud.alphaess.com/api"
-
-HEADER = {
-    "Content-Type": "application/json",
-    "Connection": "keep-alive",
-    "Accept": "*/*",
-    "Accept-Encoding": "gzip, deflate",
-    "Cache-Control": "no-cache"
-}
-
+AUTHPREFIX = "al8e4s"
+AUTHCONSTANT = "LSZYDA95JVFQKV7PQNODZRDZIS4EDS0EED8BCWSS"
+AUTHSUFFIX = "ui893ed"
 
 class alphaess:
     """Class for Alpha ESS."""
@@ -30,6 +24,19 @@ class alphaess:
         self.password = None
         self.expiresin = None
         self.tokencreatetime = None
+        self.refreshtoken = None
+
+    def __headers(self):
+        timestamp = str(int(time.time()))
+        return {
+            "Content-Type": "application/json",
+            "Connection": "keep-alive",
+            "Accept": "*/*",
+            "Accept-Encoding": "gzip, deflate",
+            "Cache-Control": "no-cache",
+            "authtimestamp": f"{timestamp}",
+            "authsignature": f"{AUTHPREFIX}{str(hashlib.sha512((AUTHCONSTANT + str(timestamp)).encode('ascii')).hexdigest())}{AUTHSUFFIX}"
+        }
 
     async def authenticate(self, username, password) -> bool:
         """Authenticate."""
@@ -38,13 +45,14 @@ class alphaess:
 
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
+                headers = self.__headers()
                 response = await session.post(
                     resource,
                     json={
                         "username": username,
-                        "password": password,
+                        "password": password
                     },
-                    headers=HEADER
+                    headers=headers
                 )
                 if response.status == 200:
                     json_response = await response.json()
@@ -59,47 +67,80 @@ class alphaess:
                         self.accesstoken = json_response["data"]["AccessToken"]
                     if "ExpiresIn" in json_response["data"]:
                         self.expiresin = json_response["data"]["ExpiresIn"]
-                    if "TokenCreateTime" in json_response["data"]:
-                        TokenCreateTime = json_response["data"]["TokenCreateTime"]
-                        logger.debug("Received TokenCreateTime: %s", TokenCreateTime)
-                        if "M" in json_response["data"]["TokenCreateTime"]:
-                            self.tokencreatetime = datetime.strptime(TokenCreateTime, "%m/%d/%Y %I:%M:%S %p")
-                        else:
-                            #AlphaESS frequently make unexpected changes to the date formatting in their API responses.
-                            #Attempting to workaround those changes by using a regular expression to pull out all 
-                            #digits from the TokenCreateTime regardless of separator characters.
-                            #Assumes date order returned from AlphaESS API will always be year, month, day, hour, minute, second
-                            DateParts = re.findall(r'\d+', TokenCreateTime)
-                            #Try to adjust for AM or PM if needed
-                            if int(DateParts[3]) < 12:
-                                if "下午" in TokenCreateTime or "PM" in TokenCreateTime or "pm" in TokenCreateTime:
-                                    DateParts[3] = str(int(DateParts[3]) + 12)
-                            self.tokencreatetime = datetime.strptime(' '.join(DateParts),"%Y %m %d %H %M %S")
+                    if "RefreshTokenKey" in json_response["data"]:
+                        self.refreshtoken = json_response["data"]["RefreshTokenKey"]
+                    self.tokencreatetime = datetime.utcnow()
                     self.username = username
                     self.password = password
                     logger.debug("Successfully Authenticated to Alpha ESS")
                     logger.debug("Received access token: %s", self.accesstoken)
                     return True
             except (aiohttp.ClientConnectionError) as e:
+                self.__clearconnection()
                 logger.error(e)
                 raise
 
             except (aiohttp.client_exceptions.ClientConnectorError) as e:
+                self.__clearconnection()
                 logger.error(e)
                 raise
+
+    async def __refresh(self,) -> bool:
+        """Refresh."""
+
+        resource = f"{BASEURL}/Account/RefreshToken"
+
+        async with aiohttp.ClientSession(raise_for_status=True) as session:
+            try:
+                response = await session.post(
+                    resource,
+                    json={
+                        "username": self.username,
+                        "accesstoken": self.accesstoken,
+                        "refreshtokenkey": self.refreshtoken
+                    },
+                    headers=self.__headers()
+                )
+                if response.status == 200:
+                    json_response = await response.json()
+                    if "info" in json_response and json_response["info"] != "Success":
+                        raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status, message=json_response["info"])
+                    if "AccessToken" in json_response["data"]:
+                        self.accesstoken = json_response["data"]["AccessToken"]
+                    if "ExpiresIn" in json_response["data"]:
+                        self.expiresin = json_response["data"]["ExpiresIn"]
+                    if "RefreshTokenKey" in json_response["data"]:
+                        self.refreshtoken = json_response["data"]["RefreshTokenKey"]
+                    self.tokencreatetime = datetime.utcnow()
+                    logger.debug("Successfully refreshed access token")
+                    logger.debug("Received access token: %s", self.accesstoken)
+                    return True
+            except (aiohttp.ClientConnectionError) as e:
+                self.__clearconnection()
+                logger.error(e)
+                raise
+
+            except (aiohttp.client_exceptions.ClientConnectorError) as e:
+                self.__clearconnection()
+                logger.error(e)
+                raise
+
+    def __clearconnection(self):
+        self.accesstoken = None
+        self.tokencreatetime = None
+        self.expiresin = None
+        self.refreshtoken = None
 
     async def __connection_check(self) -> bool:
         """Check if API needs re-authentication."""
 
-        if self.accesstoken is not None:
-            if (self.expiresin is not None) and (self.tokencreatetime is not None):
-                timediff = datetime.utcnow() - self.tokencreatetime
-                if timediff.total_seconds() < self.expiresin:
-                    logger.debug("API authentication token remains valid")
-                    return True
-            return True
-        await self.authenticate(self.username, self.password)
-        return True
+        if (self.accesstoken is not None) and (self.tokencreatetime is not None) and (self.expiresin is not None) and (self.refreshtoken is not None):
+            if datetime.utcnow() < (self.tokencreatetime + timedelta(seconds=(self.expiresin - 60))):
+                logger.debug("API authentication token remains valid")
+                return True
+            else:
+                return await self.__refresh()
+        return await self.authenticate(self.username, self.password)
 
     async def getdata(self) -> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
@@ -135,7 +176,10 @@ class alphaess:
 
         async with aiohttp.ClientSession(raise_for_status=True) as session:
             try:
+                timestamp = str(int(time.time()))
                 session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+                session.headers.update({'authtimestamp': f'{timestamp}'})
+                session.headers.update({'authsignature': f'{AUTHPREFIX}{str(hashlib.sha512((AUTHCONSTANT + str(timestamp)).encode("ascii")).hexdigest())}{AUTHSUFFIX}'})
                 response = await session.get(resource)
 
                 if response.status == 200:
@@ -162,7 +206,11 @@ class alphaess:
 
         try:
             async with aiohttp.ClientSession(raise_for_status=True) as session:
+                timestamp = str(int(time.time()))
                 session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
+                session.headers.update({'authtimestamp': f'{timestamp}'})
+                session.headers.update({'authsignature': f'{AUTHPREFIX}{str(hashlib.sha512((AUTHCONSTANT + str(timestamp)).encode("ascii")).hexdigest())}{AUTHSUFFIX}'})
+
                 response = await session.post(
                     resource,
                     json=json

@@ -18,10 +18,16 @@
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
 									"pm.globals.set(\"BearerToken\", jsonData.data.AccessToken);",
-									"",
-									"// Set current date for statistics",
-									"var moment = require('moment');",
-									"pm.globals.set('CurrentDate', moment().format((\"YYYY-MM-DD\")));"
+									"pm.globals.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -32,7 +38,18 @@
 							"type": "noauth"
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"username\": \"{{Username}}\",\r\n    \"password\": \"{{Password}}\"\r\n}",
@@ -56,6 +73,69 @@
 					"response": []
 				},
 				{
+					"name": "RefreshToken",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"BearerToken\", jsonData.data.AccessToken);",
+									"pm.globals.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\": \"{{Username}}\",\r\n    \"accesstoken\" : \"{{BearerToken}}\",\r\n    \"refreshtokenkey\": \"{{RefreshToken}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Account/RefreshToken",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"RefreshToken"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "GetUserInfo",
 					"request": {
 						"auth": {
@@ -69,7 +149,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{BaseUrl}}/Account/GetUserInfo",
 							"host": [
@@ -78,6 +169,105 @@
 							"path": [
 								"Account",
 								"GetUserInfo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetCustomUserSetting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"UserSetting\", JSON.stringify(jsonData.data));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authSignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetCustomUserSetting",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetCustomUserSetting"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CustomUserSetting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "//For testing just send it back\r\n{{UserSetting}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Account/CustomUserSetting",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"CustomUserSetting"
 							]
 						}
 					},
@@ -109,7 +299,18 @@
 							]
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{BaseUrl}}/Account/GetCustomMenuESSList",
 							"host": [
@@ -118,6 +319,105 @@
 							"path": [
 								"Account",
 								"GetCustomMenuESSList"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetElectrovalenceSetting",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = JSON.parse(responseBody);",
+									"pm.globals.set(\"ElectrovalenceSetting\", JSON.stringify(jsonData.data));"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{BaseUrl}}/Account/GetElectrovalenceSetting",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"GetElectrovalenceSetting"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ElectrovalenceSetting",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "//For testing just send it back\r\n{{ElectrovalenceSetting}}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Account/ElectrovalenceSetting",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Account",
+								"ElectrovalenceSetting"
 							]
 						}
 					},
@@ -150,7 +450,18 @@
 							]
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{BaseUrl}}/Account/GetCustomUseESSList",
 							"host": [
@@ -172,7 +483,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"Settings\", JSON.stringify(jsonData.data));"
+									"pm.globals.set(\"ESSSetting\", JSON.stringify(jsonData.data));"
 								],
 								"type": "text/javascript"
 							}
@@ -190,7 +501,18 @@
 							]
 						},
 						"method": "GET",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"url": {
 							"raw": "{{BaseUrl}}/Account/GetCustomUseESSSetting?system_id={{SystemId}}",
 							"host": [
@@ -224,10 +546,21 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{{Settings}}",
+							"raw": "//For testing just send it back\r\n{{ESSSetting}}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -266,7 +599,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"showLoading\": true\r\n}",
@@ -303,7 +647,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"sys_sn\": \"{{SysSn}}\",\r\n    \"noLoading\": true\r\n}",
@@ -345,7 +700,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"beginDay\": \"{{CurrentDate}}\",\r\n    \"endDay\": \"{{CurrentDate}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"isOEM\": 0,\r\n    \"SN\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"noLoading\": true\r\n}",
@@ -382,7 +748,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"szDay\": \"{{CurrentDate}}\",\r\n    \"isOEM\": 0,\r\n    \"sDate\": \"{{CurrentDate}}\"\r\n}",
@@ -419,7 +796,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"sTime\": \"12:00\",\r\n    \"lat\": \"\",\r\n    \"lon\": \"\",\r\n    \"panelNum\": 1,\r\n    \"pv\": 0.131,\r\n    \"isToday\": true,\r\n    \"sn\": \"{{SysSn}}\"\r\n}",
@@ -461,7 +849,18 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"totalIncome\": \"\",\r\n    \"inputCost\": \"\",\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"isOEM\": 0,\r\n    \"statisticBy\": \"month\",\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"tDate\": \"{{CurrentDate}}\"\r\n}",
@@ -530,7 +929,17 @@
 			"script": {
 				"type": "text/javascript",
 				"exec": [
-					""
+					"// Set current date for statistics",
+					"var moment = require('moment');",
+					"pm.globals.set('CurrentDate', moment().format((\"YYYY-MM-DD\")));",
+					"",
+					"// Set Current Epoch time",
+					"var timestamp = parseInt(new Date().getTime() / 1e3);",
+					"pm.globals.set(\"AuthTimestamp\", timestamp);",
+					"",
+					"// Set Authorization Signature",
+					"var signature = \"LSZYDA95JVFQKV7PQNODZRDZIS4EDS0EED8BCWSS\" + timestamp;",
+					"pm.globals.set(\"AuthSignature\", \"al8e4s\" + CryptoJS.SHA512(signature) + \"ui893ed\");"
 				]
 			}
 		},

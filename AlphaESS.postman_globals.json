@@ -26,6 +26,12 @@
 			"enabled": true
 		},
 		{
+			"key": "RefreshToken",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
 			"key": "SysSn",
 			"value": "",
 			"type": "default",
@@ -44,7 +50,31 @@
 			"enabled": true
 		},
 		{
-			"key": "Settings",
+			"key": "ESSSetting",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "UserSetting",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "ElectrovalenceSetting",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "AuthTimestamp",
+			"value": "",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "AuthSignature",
 			"value": "",
 			"type": "default",
 			"enabled": true
@@ -52,6 +82,6 @@
 	],
 	"name": "Globals",
 	"_postman_variable_scope": "globals",
-	"_postman_exported_at": "2022-09-05T21:39:02.200Z",
-	"_postman_exported_using": "Postman/9.30.3"
+	"_postman_exported_at": "2022-10-17T09:41:08.000Z",
+	"_postman_exported_using": "Postman/10.0.30"
 }
