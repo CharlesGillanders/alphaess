@@ -25,6 +25,7 @@ class alphaess:
         self.expiresin = None
         self.tokencreatetime = None
         self.refreshtoken = None
+        self.esslist = None
 
     def __headers(self):
         timestamp = str(int(time.time()))
@@ -142,13 +143,61 @@ class alphaess:
                 return await self.__refresh()
         return await self.authenticate(self.username, self.password)
 
+    async def getunits(self) -> Optional(list):
+        """Retrieve a list of ESS units in account"""
+
+        try:
+            if self.esslist is None:
+                logger.debug("Getting ESS List")
+                self.esslist = await self.__get_data("Account/GetCustomMenuESSList")
+            return self.esslist
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def getdailystatistics(self, serial) -> Optional(list):
+        """Retrieve daily statistics for supplied unit serial"""
+
+        try:
+            return await self.__daily_statistics(serial)
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def getsystemstatistics(self, serial) -> Optional(list):
+        """Retrieve system statistics for supplied unit serial"""
+
+        try:
+            return await self.__system_statistics(serial)
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def getpowerdata(self, serial) -> Optional(list):
+        """Retrieve power data for supplied unit serial"""
+
+        try:
+            return await self.__powerdata(serial)
+        except Exception as e:
+            logger.error(e)
+            raise
+
+    async def getsettings(self, serial) -> Optional(list):
+        """Retrieve settings for supplied unit serial"""
+
+        try:
+            system = await self.__system_id_for_sn(serial)
+            return await self.__settings(system)
+        except Exception as e:
+            logger.error(e)
+            raise
+
     async def getdata(self) -> Optional(list):
         """Retrieve ESS list by serial number from Alpha ESS"""
 
         try:
-            alldata = []
-            units = await self.__get_data("Account/GetCustomMenuESSList")
-            logger.debug(alldata)
+            alldata = []           
+            units = await self.getunits()
 
             for unit in units:
                 if "sys_sn" in unit:

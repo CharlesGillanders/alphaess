@@ -11,12 +11,22 @@ Currently this package uses an API that I reverse engineered the API from the Al
 
 # Methods
 
-There are four public methods in this module
+`authenticate(username, password)` - attempts to authenticate to the ALpha ESS API with a username and password combination, returns True or False depending on successful authentication or not
 
-authenticate(username, password) - attempts to authenticate to the ALpha ESS API with a username and password combination, returns True or False depending on successful authentication or not
+The remaining methods require authentication. Will throw Exceptions on failure.
 
-getdata() - having successfully authenticated attempts to get statistical energy data on all registered Alpha ESS systems - will return None if there are issues retrieving data from the Alpha ESS API.
+`getunits()` - get a list of ESS units in account
 
-setbatterycharge(serial, enabled, cp1start, cp1end, cp2start, cp2end, chargestopsoc) - having successfully authenticated set battery grid charging settings for the SN.
+`getdailystatistics(serial)` - retrieves daily statistics for supplied ESS serial number
 
-setbatterydischarge(serial, enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc) - having successfully authenticated set battery discharge settings for the SN.
+`getsystemstatistics(serial)` - retrieves system statistics for supplied ESS serial number
+
+`getpowerdata(serial)` - retrieves current power statistics (PV output, load, grid import/export etc.) for supplied ESS serial number
+
+`getsettings(serial)` - retrieves supplied ESS serial number settings
+
+`getdata()` - iterate through all available Alpha ESS systems and get all statistical energy data - will return None if there are issues retrieving data from the Alpha ESS API.
+
+`setbatterycharge(serial, enabled, cp1start, cp1end, cp2start, cp2end, chargestopsoc)` - set battery grid charging settings for the SN.
+
+`setbatterydischarge(serial, enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc)` - set battery discharge settings for the SN.
