@@ -9,6 +9,12 @@ Create a new Alpha ESS instance, log in, retrieve a list of Alpha ESS systems an
 
 Currently this package uses an API that I reverse engineered the API from the Alpha ESS web app. This is an internal API subject to change at any time by Alpha ESS.
 
+### Note
+
+As of AlphaCloud V5.0.0.2 (2022-10-16) Alpha ESS introduced anti-crawl efforts to make retrieving data more difficult for packages like this one.
+
+To be good internet citizens, it is advised that your polling frequency for any AlphaCloud endpoints are 10 seconds at a minimum.
+
 # Methods
 
 `authenticate(username, password)` - attempts to authenticate to the ALpha ESS API with a username and password combination, returns True or False depending on successful authentication or not
