@@ -139,7 +139,7 @@ class alphaess:
                 logger.debug("API authentication token remains valid")
                 return True
             else:
-                return await self.__refresh() if True else await self.authenticate(self.username, self.password)
+                return True if await self.__refresh() else await self.authenticate(self.username, self.password)
         return await self.authenticate(self.username, self.password)
 
     async def getdata(self) -> Optional(list):
