@@ -85,7 +85,7 @@ class alphaess:
                 logger.error(e)
                 raise
 
-    async def __refresh(self,) -> bool:
+    async def __refresh(self) -> bool:
         """Refresh."""
 
         resource = f"{BASEURL}/Account/RefreshToken"
@@ -139,7 +139,7 @@ class alphaess:
                 logger.debug("API authentication token remains valid")
                 return True
             else:
-                return await self.__refresh()
+                return True if await self.__refresh() else await self.authenticate(self.username, self.password)
         return await self.authenticate(self.username, self.password)
 
     async def getdata(self) -> Optional(list):
