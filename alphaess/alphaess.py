@@ -106,7 +106,7 @@ class alphaess:
                     if "info" in json_response and json_response["info"] != "Success":
                         if "token is expire" in json_response["info"].casefold():
                             return False
-                        else
+                        else:
                             raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status, message=json_response["info"])
                     if "AccessToken" in json_response["data"]:
                         self.accesstoken = json_response["data"]["AccessToken"]
