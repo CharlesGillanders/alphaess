@@ -104,7 +104,10 @@ class alphaess:
                 if response.status == 200:
                     json_response = await response.json()
                     if "info" in json_response and json_response["info"] != "Success":
-                        raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status, message=json_response["info"])
+                        if "token is expire" in json_response["info"].casefold():
+                            return False
+                        else
+                            raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status, message=json_response["info"])
                     if "AccessToken" in json_response["data"]:
                         self.accesstoken = json_response["data"]["AccessToken"]
                     if "ExpiresIn" in json_response["data"]:
@@ -135,7 +138,7 @@ class alphaess:
         """Check if API needs re-authentication."""
 
         if (self.accesstoken is not None) and (self.tokencreatetime is not None) and (self.expiresin is not None) and (self.refreshtoken is not None):
-            if datetime.utcnow() < (self.tokencreatetime + timedelta(seconds=(self.expiresin - 60))):
+            if datetime.utcnow() < (self.tokencreatetime + timedelta(seconds=(self.expiresin - 600))):
                 logger.debug("API authentication token remains valid")
                 return True
             else:
