@@ -242,7 +242,7 @@ class alphaess:
         todaydate = date.today().strftime("%Y-%m-%d")
 
         logger.debug("Trying to retrieve daily statistics for serial %s, date %s", serial, todaydate)
-        return await self.__get_data(path=f"Power/SticsByPeriod?beginDay={todayDate}&endDay={todayDate}&tDay={todayDate}&isOEM=0&SN={serial}&userID=&noLoading=true")
+        return await self.__get_data(path=f"Power/SticsByPeriod?beginDay={todaydate}&endDay={todaydate}&tDay={todaydate}&isOEM=0&SN={serial}&userID=&noLoading=true")
 
     async def __system_statistics(self, serial):
         """Get system statistics"""
