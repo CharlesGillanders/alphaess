@@ -17,8 +17,8 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"BearerToken\", jsonData.data.AccessToken);",
-									"pm.globals.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
+									"pm.collectionVariables.set(\"BearerToken\", jsonData.data.AccessToken);",
+									"pm.collectionVariables.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
 								],
 								"type": "text/javascript"
 							}
@@ -80,8 +80,8 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"BearerToken\", jsonData.data.AccessToken);",
-									"pm.globals.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
+									"pm.collectionVariables.set(\"BearerToken\", jsonData.data.AccessToken);",
+									"pm.collectionVariables.set(\"RefreshToken\", jsonData.data.RefreshTokenKey);"
 								],
 								"type": "text/javascript"
 							}
@@ -182,7 +182,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"UserSetting\", JSON.stringify(jsonData.data));"
+									"pm.collectionVariables.set(\"UserSetting\", JSON.stringify(jsonData.data));"
 								],
 								"type": "text/javascript"
 							}
@@ -281,7 +281,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"SysSn\", jsonData.data[0].sys_sn);"
+									"pm.collectionVariables.set(\"SysSn\", jsonData.data[0].sys_sn);"
 								],
 								"type": "text/javascript"
 							}
@@ -332,7 +332,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"ElectrovalenceSetting\", JSON.stringify(jsonData.data));"
+									"pm.collectionVariables.set(\"ElectrovalenceSetting\", JSON.stringify(jsonData.data));"
 								],
 								"type": "text/javascript"
 							}
@@ -431,8 +431,8 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"var system = _.find(jsonData.data, {\"sys_sn\": pm.variables.get(\"SysSn\")})",
-									"pm.globals.set(\"SystemId\", system.system_id);"
+									"var system = _.find(jsonData.data, { \"sys_sn\": pm.collectionVariables.get(\"SysSn\") })",
+									"pm.collectionVariables.set(\"SystemId\", system.system_id);"
 								],
 								"type": "text/javascript"
 							}
@@ -483,7 +483,7 @@
 							"script": {
 								"exec": [
 									"var jsonData = JSON.parse(responseBody);",
-									"pm.globals.set(\"ESSSetting\", JSON.stringify(jsonData.data));"
+									"pm.collectionVariables.set(\"ESSSetting\", JSON.stringify(jsonData.data));"
 								],
 								"type": "text/javascript"
 							}
@@ -587,6 +587,9 @@
 			"item": [
 				{
 					"name": "SticsSummeryDataForCustomer",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -598,7 +601,7 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "authtimestamp",
@@ -613,7 +616,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"showLoading\": true\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -621,13 +624,27 @@
 							}
 						},
 						"url": {
-							"raw": "{{BaseUrl}}/ESS/SticsSummeryDataForCustomer",
+							"raw": "{{BaseUrl}}/ESS/SticsSummeryDataForCustomer?sn={{SysSn}}&tday={{CurrentDate}}&showloading=true",
 							"host": [
 								"{{BaseUrl}}"
 							],
 							"path": [
 								"ESS",
 								"SticsSummeryDataForCustomer"
+							],
+							"query": [
+								{
+									"key": "sn",
+									"value": "{{SysSn}}"
+								},
+								{
+									"key": "tday",
+									"value": "{{CurrentDate}}"
+								},
+								{
+									"key": "showloading",
+									"value": "true"
+								}
 							]
 						}
 					},
@@ -635,6 +652,9 @@
 				},
 				{
 					"name": "GetLastPowerDataBySN",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -646,7 +666,7 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "authtimestamp",
@@ -661,7 +681,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"sys_sn\": \"{{SysSn}}\",\r\n    \"noLoading\": true\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -669,13 +689,23 @@
 							}
 						},
 						"url": {
-							"raw": "{{BaseUrl}}/ESS/GetLastPowerDataBySN",
+							"raw": "{{BaseUrl}}/ESS/GetLastPowerDataBySN?sys_sn={{SysSn}}&noLoading=true",
 							"host": [
 								"{{BaseUrl}}"
 							],
 							"path": [
 								"ESS",
 								"GetLastPowerDataBySN"
+							],
+							"query": [
+								{
+									"key": "sys_sn",
+									"value": "{{SysSn}}"
+								},
+								{
+									"key": "noLoading",
+									"value": "true"
+								}
 							]
 						}
 					},
@@ -688,6 +718,9 @@
 			"item": [
 				{
 					"name": "SticsByPeriod",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -699,7 +732,7 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "GET",
 						"header": [
 							{
 								"key": "authtimestamp",
@@ -714,7 +747,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"beginDay\": \"{{CurrentDate}}\",\r\n    \"endDay\": \"{{CurrentDate}}\",\r\n    \"tday\": \"{{CurrentDate}}\",\r\n    \"isOEM\": 0,\r\n    \"SN\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"noLoading\": true\r\n}",
+							"raw": "",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -722,13 +755,43 @@
 							}
 						},
 						"url": {
-							"raw": "{{BaseUrl}}/Power/SticsByPeriod",
+							"raw": "{{BaseUrl}}/Power/SticsByPeriod?beginDay={{CurrentDate}}&endDay={{CurrentDate}}&tday={{CurrentDate}}&isOEM=0&SN={{SysSn}}&userId&noLoading=true",
 							"host": [
 								"{{BaseUrl}}"
 							],
 							"path": [
 								"Power",
 								"SticsByPeriod"
+							],
+							"query": [
+								{
+									"key": "beginDay",
+									"value": "{{CurrentDate}}"
+								},
+								{
+									"key": "endDay",
+									"value": "{{CurrentDate}}"
+								},
+								{
+									"key": "tday",
+									"value": "{{CurrentDate}}"
+								},
+								{
+									"key": "isOEM",
+									"value": "0"
+								},
+								{
+									"key": "SN",
+									"value": "{{SysSn}}"
+								},
+								{
+									"key": "userId",
+									"value": null
+								},
+								{
+									"key": "noLoading",
+									"value": "true"
+								}
 							]
 						}
 					},
@@ -829,6 +892,54 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "ForecaseLoadAndPV",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"pv\": 0,\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"queryDate\": \"{{CurrentDate}}\",\r\n    \"queryTime\": \"7:30\",\r\n    \"load\": 0\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Power/ForecastLoadAndPV",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Power",
+								"ForecastLoadAndPV"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -837,6 +948,91 @@
 			"item": [
 				{
 					"name": "PayoffTotalResult",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{BearerToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{BaseUrl}}/Income/PayoffTotalResult?totalIncome&inputCost&sn={{SysSn}}&userId&isOEM=0&statisticBy=month&sDate={{CurrentDate}}&tDate={{CurrentDate}}",
+							"host": [
+								"{{BaseUrl}}"
+							],
+							"path": [
+								"Income",
+								"PayoffTotalResult"
+							],
+							"query": [
+								{
+									"key": "totalIncome",
+									"value": null
+								},
+								{
+									"key": "inputCost",
+									"value": null
+								},
+								{
+									"key": "sn",
+									"value": "{{SysSn}}"
+								},
+								{
+									"key": "userId",
+									"value": null
+								},
+								{
+									"key": "isOEM",
+									"value": "0"
+								},
+								{
+									"key": "statisticBy",
+									"value": "month"
+								},
+								{
+									"key": "sDate",
+									"value": "{{CurrentDate}}"
+								},
+								{
+									"key": "tDate",
+									"value": "{{CurrentDate}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "PayoffStatistic",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -871,20 +1067,25 @@
 							}
 						},
 						"url": {
-							"raw": "{{BaseUrl}}/Income/PayoffTotalResult",
+							"raw": "{{BaseUrl}}/Income/PayoffStatistic",
 							"host": [
 								"{{BaseUrl}}"
 							],
 							"path": [
 								"Income",
-								"PayoffTotalResult"
+								"PayoffStatistic"
 							]
 						}
 					},
 					"response": []
-				},
+				}
+			]
+		},
+		{
+			"name": "Statistic",
+			"item": [
 				{
-					"name": "PayoffStatistic",
+					"name": "SystemStatistic",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -897,10 +1098,21 @@
 							]
 						},
 						"method": "POST",
-						"header": [],
+						"header": [
+							{
+								"key": "authtimestamp",
+								"value": "{{AuthTimestamp}}",
+								"type": "text"
+							},
+							{
+								"key": "authsignature",
+								"value": "{{AuthSignature}}",
+								"type": "text"
+							}
+						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"totalIncome\": \"\",\r\n    \"inputCost\": \"\",\r\n    \"sn\": \"{{SysSn}}\",\r\n    \"userId\": \"\",\r\n    \"isOEM\": 0,\r\n    \"statisticBy\": \"month\",\r\n    \"sDate\": \"{{CurrentDate}}\",\r\n    \"tDate\": \"{{CurrentDate}}\"\r\n}",
+							"raw": "{\r\n            \"sn\": \"{{SysSn}}\",\r\n            \"userId\": \"\",\r\n            \"statisticBy\": \"month\",\r\n            \"sDate\": \"{{CurrentDate}}\",\r\n            \"isOEM\": 0\r\n        }",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -908,13 +1120,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{BaseUrl}}/Income/PayoffStatistic",
+							"raw": "{{BaseUrl}}/Statistic/SystemStatistic",
 							"host": [
 								"{{BaseUrl}}"
 							],
 							"path": [
-								"Income",
-								"PayoffStatistic"
+								"Statistic",
+								"SystemStatistic"
 							]
 						}
 					},
@@ -931,15 +1143,15 @@
 				"exec": [
 					"// Set current date for statistics",
 					"var moment = require('moment');",
-					"pm.globals.set('CurrentDate', moment().format((\"YYYY-MM-DD\")));",
+					"pm.collectionVariables.set('CurrentDate', moment().format((\"YYYY-MM-DD\")));",
 					"",
 					"// Set Current Epoch time",
 					"var timestamp = parseInt(new Date().getTime() / 1e3);",
-					"pm.globals.set(\"AuthTimestamp\", timestamp);",
+					"pm.collectionVariables.set(\"AuthTimestamp\", timestamp);",
 					"",
 					"// Set Authorization Signature",
 					"var signature = \"LSZYDA95JVFQKV7PQNODZRDZIS4EDS0EED8BCWSS\" + timestamp;",
-					"pm.globals.set(\"AuthSignature\", \"al8e4s\" + CryptoJS.SHA512(signature) + \"ui893ed\");"
+					"pm.collectionVariables.set(\"AuthSignature\", \"al8e4s\" + CryptoJS.SHA512(signature) + \"ui893ed\");"
 				]
 			}
 		},
@@ -951,6 +1163,73 @@
 					""
 				]
 			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BaseUrl",
+			"value": "https://cloud.alphaess.com/api",
+			"type": "string"
+		},
+		{
+			"key": "Username",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "Password",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "CurrentDate",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "AuthTimestamp",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "AuthSignature",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "BearerToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "RefreshToken",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SysSn",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "SystemId",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ESSSetting",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "UserSetting",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ElectrovalenceSetting",
+			"value": "",
+			"type": "string"
 		}
 	]
 }
