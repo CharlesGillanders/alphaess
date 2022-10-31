@@ -10,7 +10,7 @@ from voluptuous import Optional
 
 BASEURL = "https://cloud.alphaess.com/api"
 AUTHPREFIX = "al8e4s"
-AUTHCONSTANT = "LSZYDA95JVFQKV7PQNODZRDZIS4EDS0EED8BCWSS"
+AUTHCONSTANT = "LS885ZYDA95JVFQKUIUUUV7PQNODZRDZIS4ERREDS0EED8BCWSS"
 AUTHSUFFIX = "ui893ed"
 
 class alphaess:
@@ -43,8 +43,9 @@ class alphaess:
 
         resource = f"{BASEURL}/Account/Login"
 
-        async with aiohttp.ClientSession(raise_for_status=True) as session:
+        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
             try:
+                
                 headers = self.__headers()
                 response = await session.post(
                     resource,
