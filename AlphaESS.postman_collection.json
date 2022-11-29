@@ -1150,7 +1150,7 @@
 					"pm.collectionVariables.set(\"AuthTimestamp\", timestamp);",
 					"",
 					"// Set Authorization Signature",
-					"var signature = \"LSZYDA95JVFQKV7PQNODZRDZIS4EDS0EED8BCWSS\" + timestamp;",
+					"var signature = \"LS885ZYDA95JVFQKUIUUUV7PQNODZRDZIS4ERREDS0EED8BCWSS\" + timestamp;",
 					"pm.collectionVariables.set(\"AuthSignature\", \"al8e4s\" + CryptoJS.SHA512(signature) + \"ui893ed\");"
 				]
 			}
