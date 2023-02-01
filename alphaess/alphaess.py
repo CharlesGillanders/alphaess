@@ -301,6 +301,7 @@ class alphaess:
         settings["time_chaf2a"] = cp2start
         settings["time_chae2a"] = cp2end
         settings["bat_high_cap"] = int(chargestopsoc)
+        settings["system_id"] = system        
 
         logger.debug(f"Trying to set system settings for system {system}")
         await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
@@ -317,6 +318,7 @@ class alphaess:
         settings["time_disf2a"] = dp2start
         settings["time_dise2a"] = dp2end
         settings["bat_use_cap"] = int(dischargecutoffsoc)
+        settings["system_id"] = system
 
         logger.debug(f"Trying to set system settings for system {system}")
         await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
