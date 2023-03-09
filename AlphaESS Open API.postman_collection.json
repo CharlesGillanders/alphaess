@@ -1,0 +1,398 @@
+{
+	"info": {
+		"_postman_id": "94a36544-c469-4ffb-b92d-063cc7b083df",
+		"name": "AlphaESS Open API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23152579"
+	},
+	"item": [
+		{
+			"name": "getEssList",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.data){",
+							"  pm.collectionVariables.set(\"SysSn\", jsonData.data[0].sysSn);",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getEssList",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getEssList"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getLastPowerData",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getLastPowerData?sysSn={{SysSn}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getLastPowerData"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOneDayPowerBySn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getOneDayPowerBySn?sysSn={{SysSn}}&queryDate={{CurrentDate}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getOneDayPowerBySn"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						},
+						{
+							"key": "queryDate",
+							"value": "{{CurrentDate}}",
+							"description": "Date，Format：yyyy-MM-dd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOneDateEnergyBySn",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getOneDateEnergyBySn?sysSn={{SysSn}}&queryDate={{CurrentDate}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getOneDateEnergyBySn"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						},
+						{
+							"key": "queryDate",
+							"value": "{{CurrentDate}}",
+							"description": "Date，Format：yyyy-MM-dd"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getChargeConfigInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.data){",
+							"  jsonData.data.sysSn = pm.collectionVariables.get(\"SysSn\");",
+							"  pm.collectionVariables.set(\"ChargeData\", JSON.stringify(jsonData.data));",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getChargeConfigInfo?sysSn={{SysSn}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getChargeConfigInfo"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateChargeConfigInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{ChargeData}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/updateChargeConfigInfo?sysSn={{SysSn}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"updateChargeConfigInfo"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getDisChargeConfigInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"if (jsonData.data){",
+							"  jsonData.data.sysSn = pm.collectionVariables.get(\"SysSn\");",
+							"  pm.collectionVariables.set(\"DischargeData\", JSON.stringify(jsonData.data));",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{BaseUrl}}/getDisChargeConfigInfo?sysSn={{SysSn}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"getDisChargeConfigInfo"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}",
+							"description": "System S/N"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updateDisChargeConfigInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{{DischargeData}}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{BaseUrl}}/updateDisChargeConfigInfo?sysSn={{SysSn}}",
+					"host": [
+						"{{BaseUrl}}"
+					],
+					"path": [
+						"updateDisChargeConfigInfo"
+					],
+					"query": [
+						{
+							"key": "sysSn",
+							"value": "{{SysSn}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set current date for statistics",
+					"var moment = require('moment');",
+					"pm.collectionVariables.set('CurrentDate', moment.utc().format((\"YYYY-MM-DD\")));",
+					"",
+					"var appId = pm.collectionVariables.get(\"AppId\");",
+					"var appSecret = pm.collectionVariables.get(\"AppSecret\");",
+					"var timeStamp = moment.utc().unix().toString();",
+					"var sign = CryptoJS.SHA512(appId + appSecret + timeStamp).toString();",
+					"",
+					"pm.request.addHeader({key: \"appId\", value: appId});",
+					"pm.request.addHeader({key: \"timeStamp\", value: timeStamp});",
+					"pm.request.addHeader({key: \"sign\", value: sign});"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "BaseUrl",
+			"value": "https://openapi.alphaess.com/api",
+			"type": "string"
+		},
+		{
+			"key": "AppId",
+			"value": "YOURAPPID",
+			"type": "string"
+		},
+		{
+			"key": "AppSecret",
+			"value": "YOURAPPSECRET",
+			"type": "string"
+		},
+		{
+			"key": "SysSn",
+			"value": "YOURSERIALNUMBER",
+			"type": "string"
+		},
+		{
+			"key": "CurrentDate",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "ChargeData",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "DischargeData",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
