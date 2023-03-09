@@ -216,72 +216,25 @@ class alphaess:
             logger.error(e)
             raise
 
-    # async def __daily_statistics(self, serial):
-    #     """Get daily energy statistics"""
 
-    #     todaydate = date.today().strftime("%Y-%m-%d")
+    async def getdata(self) -> Optional(list):
+        """Get All Data For All serial numbers from Alpha ESS"""
 
-    #     logger.debug("Trying to retrieve daily statistics for serial %s, date %s", serial, todaydate)
-    #     return await self.__get_data(path=f"Power/SticsByPeriod?beginDay={todaydate}&endDay={todaydate}&tDay={todaydate}&isOEM=0&SN={serial}&userID=&noLoading=true")
+        try:
+            alldata = []
+            units = await self.getESSList()
+            logger.debug(alldata)
 
-    # async def __system_statistics(self, serial):
-    #     """Get system statistics"""
+            for unit in units:
+                if "sysSn" in unit:
+                    serial = unit["sysSn"]
+                    unit['OneDayEnergy'] = await self.getOneDateEnergyBySn(serial,date.today().strftime("%Y-%m-%d"))
+                    unit['RealTimePower'] = await self.getLastPowerData(serial)
+                    unit['ChargeConfig'] = await self.getChargeConfigInfo(serial)
+                    unit['DisChargeConfig'] = await self.getDisChargeConfigInfo(serial)
+                    alldata.append(unit)
+            return alldata
 
-    #     todaydate = date.today().strftime("%Y-%m-%d")
-    #     json = {
-    #         "sn": serial,
-    #         "userId": "",
-    #         "statisticBy": "month",
-    #         "sDate": datetime.today().replace(day=1).strftime("%Y-%m-%d"),
-    #         "isOEM": 0
-    #     }
-
-    #     logger.debug("Trying to retrieve system statistics for serial %s, date %s", serial, todaydate)
-    #     return await self.__post_data(path="Statistic/SystemStatistic", json=json)
-
-    # async def __powerdata(self, serial):
-    #     """Get power data"""
-
-    #     logger.debug("Trying to retrieve power data for serial %s", serial)
-    #     return await self.__get_data(path=f"ESS/GetLastPowerDataBySN?noLoading=true&sys_sn={serial}")
-
-    # async def __settings(self, systemid):
-    #     """Retrieve ESS custom settings by serial number from Alpha ESS"""
-
-    #     logger.debug("Trying to retrieve settings for system %s,", systemid)
-    #     return await self.__get_data(path=f"Account/GetCustomUseESSSetting?system_id={systemid}")
-
-    # async def __system_id_for_sn(self, serial):
-    #     """Retrieve ESS system_id for the sys_sn from Alpha ESS"""
-
-    #     try:
-    #         logger.debug(f"Getting System Id for Alpha ESS unit {serial}")
-    #         systems = await self.__get_data(path="Account/GetCustomUseESSList")
-
-    #         system = list(filter(lambda x: x["sys_sn"] == serial, systems))
-
-    #         if system:
-    #             if "system_id" in system[0]:
-    #                 return system[0]["system_id"]
-
-    #     except Exception as e:
-    #         logger.error(e)
-    #         raise
-
-
-    # async def setbatterydischarge(self, serial, enabled, dp1start, dp1end, dp2start, dp2end, dischargecutoffsoc):
-    #     """Set battery discharging"""
-
-    #     system = await self.__system_id_for_sn(serial)
-
-    #     settings = await self.__settings(system)
-    #     settings["ctr_dis"] = int(enabled)
-    #     settings["time_disf1a"] = dp1start
-    #     settings["time_dise1a"] = dp1end
-    #     settings["time_disf2a"] = dp2start
-    #     settings["time_dise2a"] = dp2end
-    #     settings["bat_use_cap"] = int(dischargecutoffsoc)
-    #     settings["system_id"] = system
-
-    #     logger.debug(f"Trying to set system settings for system {system}")
-    #     await self.__post_data(path="Account/CustomUseESSSetting", json=settings)
+        except Exception as e:
+            logger.error(e)
+            raise
