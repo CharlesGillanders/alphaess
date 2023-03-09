@@ -39,179 +39,88 @@ class alphaess:
     async def getESSList(self) -> Optional(list):
         """According to SN to get system list data"""
         resource = f"{BASEURL}/getEssList"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get list of registered ESS systems")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
 
     async def getLastPowerData(self,sysSn) -> Optional(list):
         """According SN to get real-time power data"""
         resource = f"{BASEURL}/getLastPowerData?sysSn={sysSn}"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get real time power information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
+
 
     async def getOneDayPowerBySn(self,sysSn,queryDate) -> Optional(list):
         """According SN to get system power data"""
         resource = f"{BASEURL}/getOneDayPowerBySn?sysSn={sysSn}&queryDate={queryDate}"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get one day power information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
     
     async def getOneDateEnergyBySn(self,sysSn,queryDate) -> Optional(list):
         """According SN to get System Energy Data"""
         resource = f"{BASEURL}/getOneDateEnergyBySn?sysSn={sysSn}&queryDate={queryDate}"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get one day energy information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
 
     async def getChargeConfigInfo(self,sysSn) -> Optional(list):
         """According SN to get charging setting information"""
         resource = f"{BASEURL}/getChargeConfigInfo?sysSn={sysSn}"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get charging information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
 
     async def getDisChargeConfigInfo(self,sysSn) -> Optional(list):
         """According to SN discharge setting information"""
         resource = f"{BASEURL}/getDisChargeConfigInfo?sysSn={sysSn}"
-        headers = self.__headers()
 
-        async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-            try:
-                response = await session.get(
-                    resource,
-                    headers=headers
-                )
+        logger.debug(f"Trying to get discharging information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
-                
-            except (aiohttp.ClientConnectionError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        data = await self.__get_data(resource)
 
-            except (aiohttp.client_exceptions.ClientConnectorError) as e:
-                self.__clearconnection()
-                logger.error(e)
-                raise
+        if data is not None:
+            return data
+        else:
+            return None
 
     async def updateChargeConfigInfo(self,sysSn,batHighCap,gridCharge,timeChae1,timeChae2,timeChaf1,timeChaf2) -> Optional(dict):
         """According SN to Set charging information"""
 
-        try:
-            resource = f"{BASEURL}/updateChargeConfigInfo" 
-            headers = self.__headers()
-
-            settings = {
+        resource = f"{BASEURL}/updateChargeConfigInfo" 
+        
+        settings = {
             "sysSn": sysSn,
             "batHighCap": batHighCap,
             "gridCharge": gridCharge,
@@ -221,41 +130,21 @@ class alphaess:
             "timeChaf2": timeChaf2       
             }
 
-            logger.debug(f"Trying to set charging information for system {sysSn}")
-            async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-                response = await session.post(
-                    resource,
-                    headers=headers,
-                    json=settings
-                )
+        logger.debug(f"Trying to set charging information for system {sysSn}")
 
-                if response.status == 200:
-                    json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
-                        return json_response["data"]
+        data = await self.__post_data(resource,settings)
 
-        except (aiohttp.ClientConnectionError) as e:
-            self.__clearconnection()
-            logger.error(e)
-            raise
-
-        except (aiohttp.client_exceptions.ClientConnectorError) as e:
-            self.__clearconnection()
-            logger.error(e)
-            raise
-        except Exception as e:
-            logger.error(e)
-            raise
+        if data is not None:
+            return data
+        else:
+            return None
 
     async def updateDisChargeConfigInfo(self,sysSn,batUseCap,ctrDis,timeDise1,timeDise2,timeDisf1,timeDisf2) -> Optional(dict):
         """According SN to Set discharge information"""
 
-        try:
-            resource = f"{BASEURL}/updateDisChargeConfigInfo" 
-            headers = self.__headers()
+        resource = f"{BASEURL}/updateDisChargeConfigInfo" 
 
-            settings = {
+        settings = {
             "sysSn": sysSn,
             "batUseCap": batUseCap,
             "ctrDis": ctrDis,
@@ -265,123 +154,67 @@ class alphaess:
             "timeDisf2": timeDisf2       
             }
 
-            logger.debug(f"Trying to set discharging information for system {sysSn}")
-            async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
-                response = await session.post(
-                    resource,
+        logger.debug(f"Trying to set discharging information for system {sysSn}")
+
+        data = await self.__post_data(resource,settings)
+
+        if data is not None:
+            return data
+        else:
+            return None
+ 
+
+    async def __get_data(self, path, json={}) -> Optional(list):
+        """Retrieve ESS list by serial number from Alpha ESS"""
+
+        try:
+            headers = self.__headers()
+
+            async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:              
+                response = await session.get(
+                    path,
                     headers=headers,
-                    json=settings
+                    json = json
                 )
 
                 if response.status == 200:
                     json_response = await response.json()
-                    logger.debug("Received response: %s", json_response)
-                    if "msg" in json_response and json_response["msg"] == "Success":
+
+                if "msg" in json_response and json_response["msg"] == "Success":
+                    if json_response["data"] is not None:
                         return json_response["data"]
-
-        except (aiohttp.ClientConnectionError) as e:
-            self.__clearconnection()
-            logger.error(e)
-            raise
-
-        except (aiohttp.client_exceptions.ClientConnectorError) as e:
-            self.__clearconnection()
-            logger.error(e)
-            raise
+                    else:
+                        return None
+                
         except Exception as e:
             logger.error(e)
             raise
-    
-    # async def getdata(self) -> Optional(list):
-    #     """Retrieve ESS list by serial number from Alpha ESS"""
 
-    #     try:
-    #         alldata = []
-    #         units = await self.__get_data("Account/GetCustomMenuESSList")
-    #         logger.debug(alldata)
+    async def __post_data(self, path, json) -> Optional(dict):
+        """Post data to Alpha ESS"""
+        try:
 
-    #         for unit in units:
-    #             if "sys_sn" in unit:
-    #                 serial = unit["sys_sn"]
-    #                 logger.debug(f"Retreiving energy statistics for Alpha ESS unit {serial}")
-    #                 unit['statistics'] = await self.__daily_statistics(serial)
-    #                 unit['system_statistics'] = await self.__system_statistics(serial)
-    #                 unit['powerdata'] = await self.__powerdata(serial)
-    #                 system = await self.__system_id_for_sn(serial)
-    #                 unit['settings'] = await self.__settings(system)
-    #                 alldata.append(unit)
-    #         return alldata
+            headers = self.__headers()
 
-    #     except Exception as e:
-    #         logger.error(e)
-    #         raise
+            async with aiohttp.ClientSession(raise_for_status=True,trust_env=True) as session:
+                response = await session.post(
+                    path,
+                    headers=headers,
+                    json = json
+                )
 
-    # async def __get_data(self, path) -> Optional(list):
-    #     """Retrieve ESS list by serial number from Alpha ESS"""
+                if response.status == 200:
+                    json_response = await response.json()
 
-    #     if not await self.__connection_check():
-    #         return None
-
-    #     resource = f"{BASEURL}/{path}"
-
-    #     async with aiohttp.ClientSession(raise_for_status=True) as session:
-    #         try:
-    #             timestamp = str(int(time.time()))
-    #             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
-    #             session.headers.update({'authtimestamp': f'{timestamp}'})
-    #             session.headers.update({'authsignature': f'{AUTHPREFIX}{str(hashlib.sha512((AUTHCONSTANT + str(timestamp)).encode("ascii")).hexdigest())}{AUTHSUFFIX}'})
-    #             response = await session.get(resource)
-
-    #             if response.status == 200:
-    #                 json_response = await response.json()
-
-    #             if "info" in json_response and json_response["info"] != "Success":
-    #                 raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status,
-    #                                                   message=json_response["info"])
-
-    #             if json_response["data"] is not None:
-    #                 return json_response["data"]
-    #             else:
-    #                 return None
-    #         except Exception as e:
-    #             logger.error(e)
-    #             raise
-
-    # async def __post_data(self, path, json) -> Optional(dict):
-    #     """Request data from Alpha ESS"""
-    #     if not await self.__connection_check():
-    #         return None
-
-    #     resource = f"{BASEURL}/{path}"
-
-    #     try:
-    #         async with aiohttp.ClientSession(raise_for_status=True) as session:
-    #             timestamp = str(int(time.time()))
-    #             session.headers.update({'Authorization': f'Bearer {self.accesstoken}'})
-    #             session.headers.update({'authtimestamp': f'{timestamp}'})
-    #             session.headers.update({'authsignature': f'{AUTHPREFIX}{str(hashlib.sha512((AUTHCONSTANT + str(timestamp)).encode("ascii")).hexdigest())}{AUTHSUFFIX}'})
-
-    #             response = await session.post(
-    #                 resource,
-    #                 json=json
-    #             )
-
-    #         if response.status == 200:
-    #             json_response = await response.json()
-
-    #         if "info" in json_response and json_response["info"] != "Success":
-    #             raise aiohttp.ClientResponseError(response.request_info, response.history, status=response.status,
-    #                                               message=json_response["info"])
-
-    #         if json_response["data"] is not None:
-    #             return json_response["data"]
-    #         else:
-    #             logger.debug("didn't find data in response")
-    #             return None
-
-    #     except Exception as e:
-    #         logger.error(e)
-    #         raise
+                if "msg" in json_response and json_response["msg"] == "Success":
+                    if json_response["data"] is not None:
+                        return json_response["data"]
+                    else:
+                        return None
+                
+        except Exception as e:
+            logger.error(e)
+            raise
 
     # async def __daily_statistics(self, serial):
     #     """Get daily energy statistics"""
