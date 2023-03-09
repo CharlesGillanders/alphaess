@@ -26,6 +26,8 @@ There are public methods in this module that duplicate the AlphaESS OpenAPI and 
 + https://openapi.alphaess.com/api/getDisChargeConfigInfo
 + https://openapi.alphaess.com/api/updateDisChargeConfigInfo
 
+All of the above are documented at https://open.alphaess.com/developmentManagement/apiList (Registration required)
+
 There is also a method intended for use by my Home Assistant integration [https://github.com/CharlesGillanders/homeassistant-alphaESS]
 
 `getdata()` - Attempts to get a collection of data on all registered Alpha ESS systems - will return None if there are issues retrieving data from the Alpha ESS API.
