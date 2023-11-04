@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 
 from voluptuous import Optional
 
-BASEURL = "https://cloud.alphaess.com/api"
+BASEURL = "https://www.alphaess-cloud.com/api"
 AUTHPREFIX = "al8e4s"
 AUTHCONSTANT = "LS885ZYDA95JVFQKUIUUUV7PQNODZRDZIS4ERREDS0EED8BCWSS"
 AUTHSUFFIX = "ui893ed"
